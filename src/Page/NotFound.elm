@@ -1,14 +1,14 @@
-module Page.NotFound exposing (view)
+-- module Page.NotFound exposing (view)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-
-
--- VIEW --
+-- import Html exposing (..)
+-- import Html.Attributes exposing (..)
 
 
-view : Html msg
-view =
-    main_ [ tabindex -1 ]
-        [ h1 [] [ text "Not Found" ]
-        ]
+-- -- VIEW --
+
+
+-- view : Html msg
+-- view =
+--     main_ [ tabindex -1 ]
+--         [ h1 [] [ text "Not Found" ]
+--         ]

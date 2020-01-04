@@ -1,0 +1,2 @@
+module Detail exposing (main)
+
