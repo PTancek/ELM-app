@@ -4,7 +4,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode as D
 import Recipe exposing (..)
 import RemoteData exposing (WebData)
 
@@ -23,9 +22,9 @@ type Msg
     | ViewRecipe
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { recipes = RemoteData.Loading, input = "" }, Cmd.none )
+init : ( Model, Cmd Msg )
+init =
+    ( { recipes = RemoteData.NotAsked, input = "" }, Cmd.none )
 
 
 fetchRecipes : Model -> Cmd Msg
@@ -79,10 +78,11 @@ viewRecipes : WebData (List Recipe) -> Html Msg
 viewRecipes recipes =
     case recipes of
         RemoteData.NotAsked ->
-            text ""
+            h3 [][ text "Start Searching for new Recipes!" ]
+            
 
         RemoteData.Loading ->
-            h3 [] [ text "Loading..." ]
+            h3 [][ text "Loading..." ]
 
         RemoteData.Success actualRecipes ->
             div []
