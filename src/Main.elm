@@ -6,7 +6,6 @@ import Browser exposing (UrlRequest(..), Document)
 import Browser.Navigation as Nav
 import Url exposing (Url)
 import Html exposing (..)
-import Url exposing (Url)
 
 
 -- MAIN TYPES
