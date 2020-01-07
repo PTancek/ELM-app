@@ -64,15 +64,39 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1[][text "CookBook"]
-        , viewInput "text" "Search for recipes" model.input SaveInput
-        , button [ onClick FetchRecipes ][ text "Search" ]
-        , viewRecipes model.recipes ]
+    div [class "page"]
+        [ div [class "nav-bar"]
+            [
+                h3[ class "logo"][text "CookBook"]
+            ]
+        , div [class "input-and-cover"]
+            [
+                div [class "left-side" ]
+                [
+                    h2[ class "upper-input-text"][text "Discover most delicious recipes"]
+                    ,div [class "input-bar"]
+                    [
+                        
+                        viewInput "search-bar" "text" "Search for recipes" model.input SaveInput
+                        , button [class "search-button", onClick FetchRecipes ][ text "Search"  ]
+                    ]
+                    , div [class "list-of-recepies"]
+                    [
+                        viewRecipes model.recipes 
+                    ]
+                ]
+                , div [class "cover"]
+                [
+                    img [src "./img/cover.png", alt "solatka"] []
+                ]
+            ]
+        
+        
+        ]
 
-viewInput : String -> String -> String -> (String -> msg) -> Html msg
-viewInput t p v toMsg =
-  input [ type_ t, placeholder p, value v, onInput toMsg ] []
+viewInput : String -> String -> String -> String -> (String -> msg) -> Html msg
+viewInput c t p v toMsg =
+  input [ class c, type_ t, placeholder p, value v, onInput toMsg ] []
 
 
 viewRecipes : WebData (List Recipe) -> Html Msg
