@@ -1,7 +1,8 @@
-module Recipe exposing (Recipe, recipeDecoder, recipesDecoder, hitsDecoder)
+module Recipe exposing (Recipe, RecipeLite, NutrientInfo, recipeDecoder, recipesDecoder)
 
-import Json.Decode as Decode exposing (Decoder, int, float, list, string, field)
-import Json.Decode.Pipeline exposing (..)
+import Json.Decode as D exposing (Decoder, int, float, list, string, field)
+import Json.Decode.Pipeline as JP exposing (..)
+-- import Ports exposing (..)
 
 type alias Recipe =
     { 
@@ -11,63 +12,62 @@ type alias Recipe =
         , image : String
         , calories : Float
         , servings : Int
-        , ingredients : List Ingredient
-        -- , totalNutrients : List NutrientInfo
-
+        , dietLabel : List String
+        , healthLabels : List String
+        , ingredients : List String
+        , nutrients : List NutrientInfo 
     }
+
+type alias RecipeLite =
+    { 
+        id : String
+        , title : String
+        , image : String
+        , calories : Float
+        , servings : Int
+    }
+
 
 type alias NutrientInfo = 
     { 
         label : String
-        , quanity : String
+        , quantity : Float
         , unit : String
     }
 
-type alias Ingredient = 
-    {
-        text : String
-    }
 
-hitsDecoder : Decoder (List Recipe)
-hitsDecoder =
-    field "hits" recipesDecoder
 
-recipesDecoder : Decoder (List Recipe)
+recipesDecoder : Decoder (List RecipeLite)
 recipesDecoder =
-    list recipeDecoder
+    field "hits" (list (field "recipe" recipeLiteDecoder))
 
-recipeDecoder : Decoder Recipe
+
+recipeLiteDecoder : Decoder RecipeLite
+recipeLiteDecoder = 
+    D.succeed RecipeLite
+        |> JP.required "uri" string
+        |> JP.required "label" string
+        |> JP.required "image" string
+        |> JP.required "calories" float
+        |> JP.required "yield" int
+
+recipeDecoder : Decoder (List Recipe)
 recipeDecoder =
-    field "recipe" (Decode.succeed Recipe
-        |> required "uri" string
-        |> required "label" string
-        |> required "url" string
-        |> required "image" string
-        |> required "calories" float
-        |> required "yield" int
-        |> required "ingredients" ingredientsDecoder 
-        -- |> required "totalNutrients" nutrientsDecoder
-        )
-
-
-ingredientsDecoder : Decoder (List Ingredient)
-ingredientsDecoder =
-    list ingredientDecoder
-
-
-ingredientDecoder : Decoder Ingredient
-ingredientDecoder =
-    Decode.succeed Ingredient
-        |> required "text" string
-
-
-nutrientsDecoder : Decoder (List NutrientInfo)
-nutrientsDecoder =
-    list nutrientDecoder
-
+    list (D.succeed Recipe 
+        |> JP.required "uri" string
+        |> JP.required "label" string
+        |> JP.required "url" string
+        |> JP.required "image" string
+        |> JP.required "calories" float
+        |> JP.required "yield" int
+        |> JP.required "dietLabels" (list string)
+        |> JP.required "healthLabels" (list string)
+        |> JP.required "ingredientLines" (list string) 
+        |> JP.required "totalNutrients" (D.map (List.map Tuple.second) <| D.keyValuePairs nutrientDecoder)
+    )
 nutrientDecoder : Decoder NutrientInfo
 nutrientDecoder =
-    Decode.succeed NutrientInfo
-        |> required "label" string
-        |> required "quanity" string
-        |> required "unit" string 
+    D.succeed NutrientInfo
+        |> JP.required "label" string
+        |> JP.required "quantity" float
+        |> JP.required "unit" string

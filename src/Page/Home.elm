@@ -6,37 +6,51 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Recipe exposing (..)
 import RemoteData exposing (WebData)
+import Url exposing (percentEncode)
 
 
 type alias Model =
     { 
-        recipes : WebData (List Recipe)
+        recipes : WebData (List RecipeLite)
         , input : String
+        -- , startIndex : Int
+        -- , endIndex : Int
+        , page : Int
     }
 
 
 type Msg
     = FetchRecipes
     | SaveInput String
-    | RecipesRecieved (WebData (List Recipe))
-    | ViewRecipe
+    | RecipesRecieved (WebData (List RecipeLite))
+    | PrevoiusPage
+    | NextPage
 
+type alias Option =
+    {
+        
+    }
 
 init : ( Model, Cmd Msg )
 init =
-    ( { recipes = RemoteData.NotAsked, input = "" }, Cmd.none )
+    ( { recipes = RemoteData.NotAsked, input = "", page = 0}, Cmd.none )
 
 
 fetchRecipes : Model -> Cmd Msg
 fetchRecipes model =
     let
-        searchUrl = "https://api.edamam.com/search?q=" ++ model.input ++ "&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78"
+
+        from = 0 + ( 10 * model.page )
+        to = 10 + ( 10 * model.page )
+        searchUrl0 = "https://api.edamam.com/search?q=" ++ model.input ++ "&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78"
+        searchUrl1 = searchUrl0 ++ "&from=" ++ String.fromInt from ++ "&to=" ++ String.fromInt to
+
     in
     
     Http.get
-        { url = searchUrl
+        { url = searchUrl1
         , expect =
-            hitsDecoder
+            recipesDecoder
                 |> Http.expectJson (RemoteData.fromResult >> RecipesRecieved)
         }
 
@@ -45,7 +59,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchRecipes ->
-            ( { model | recipes = RemoteData.Loading }, fetchRecipes model)
+            ( { model | recipes = RemoteData.Loading, page = 0}, fetchRecipes model)
 
         SaveInput input ->
             ( { model | input = input }, Cmd.none)
@@ -53,9 +67,17 @@ update msg model =
         RecipesRecieved response ->
             ( { model | recipes = response }, Cmd.none )
 
-        -- TO DO 
-        ViewRecipe -> (model, Cmd.none)
+        PrevoiusPage ->
+            ( { model | page = model.page - 1
+            , recipes = RemoteData.Loading}
+            , fetchRecipes model)
 
+        NextPage -> 
+            ( { model | page = model.page + 1
+            , recipes = RemoteData.Loading}
+            , fetchRecipes model)
+
+        
 
 
 -- VIEWS
@@ -67,19 +89,29 @@ view model =
         [ h1[][text "CookBook"]
         , viewInput "text" "Search for recipes" model.input SaveInput
         , button [ onClick FetchRecipes ][ text "Search" ]
-        , viewRecipes model.recipes ]
+        , viewRecipes model.recipes 
+        , div[  ] [
+            button [onClick PrevoiusPage, disabled (checkStartIndex model)] [text "Previous"]
+            , button [onClick NextPage] [text "Next"]
+        ]]
+        
+
+checkStartIndex : Model -> Bool
+checkStartIndex m = 
+    case m.page of
+        0 -> True
+        _ -> False
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
   input [ type_ t, placeholder p, value v, onInput toMsg ] []
 
 
-viewRecipes : WebData (List Recipe) -> Html Msg
+viewRecipes : WebData (List RecipeLite) -> Html Msg
 viewRecipes recipes =
     case recipes of
         RemoteData.NotAsked ->
             h3 [][ text "Start Searching for new Recipes!" ]
-            
 
         RemoteData.Loading ->
             h3 [][ text "Loading..." ]
@@ -94,7 +126,6 @@ viewRecipes recipes =
         RemoteData.Failure httpError ->
             viewFetchError (buildErrorMessage httpError)
 
-
 viewTableHeader : Html Msg
 viewTableHeader =
     tr []
@@ -107,8 +138,13 @@ viewTableHeader =
         ]
 
 
-viewRecipe : Recipe -> Html Msg
+viewRecipe : RecipeLite -> Html Msg
 viewRecipe recipe =
+
+    let
+        recipeUrl = Url.percentEncode recipe.id
+    in
+    
     tr []
         [ td []
             [ text recipe.title ]
@@ -117,7 +153,7 @@ viewRecipe recipe =
         , td []
             [ text (String.fromInt recipe.servings) ]
         , td []
-            [ button [ onClick ViewRecipe ][ text "View Recipe" ] ]
+            [ button [ ] [ a [ href ("detail/" ++ recipeUrl) ] [ text "View Recipeit" ] ] ]
         ]
 
 
@@ -150,3 +186,64 @@ buildErrorMessage httpError =
 
         Http.BadBody message ->
             message
+
+
+diet : List String
+diet = 
+    [ 
+        "balanced"	
+        ,"high-fiber"	
+        ,"high-protein"
+        ,"low-carb"
+        ,"low-fat"
+        ,"low-sodium"	
+        ,"alcohol-free"
+    ]
+
+
+health : List String
+health =
+    [
+        "alcohol-free"	
+        ,"celery-free"	
+        ,"crustacean-free" 
+        ,"dairy-free"
+        ,"egg-free"
+        ,"fish-free" 	
+        ,"fodmap-free" 	
+        ,"gluten-free" 	
+        ,"keto-friendly" 	
+        ,"kidney-friendly" 
+        ,"kosher"
+        ,"low-potassium" 	
+        ,"lupine-free" 	
+        ,"mustard-free" 	
+        ,"low-fat-abs" 	
+        ,"No-oil-added" 	
+        ,"low-sugar" 	
+        ,"paleo" 	
+        ,"peanut-free" 	
+        ,"pecatarian" 	
+        ,"pork-free" 	
+        ,"red-meat-free" 
+        ,"sesame-free"
+        ,"shellfish-free"	
+        ,"soy-free"
+        ,"sugar-conscious"
+        ,"tree-nut-free" 
+        ,"vegetarian"
+        ,"wheat-free"
+    ]
+
+
+mealType : List String 
+mealType = 
+    [
+        "Breakfast"
+        ,"Lunch"
+        ,"Dinner"
+        ,"Snack"
+    ]
+
+
+
