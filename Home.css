@@ -1,0 +1,134 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+@font-face {
+    font-family: PopBold;
+    src: url('./fonts/Poppins-Bold.ttf');
+}
+
+@font-face {
+    font-family: PopRegular;
+    src: url('./fonts/Poppins-Regular.ttf');
+}
+
+body {
+    font-family: PopRegular;
+}
+
+.page {
+    color: black;
+    background: radial-gradient(rgba(255,245,236,1), rgba(255,237,222,1));
+    background: linear-gradient(90deg,#ffedde 75%, #ec0606 25%);
+}
+h3 {
+    
+    color: red;
+    font-family: PopBold;
+}
+
+.logo {
+    font-size: 33px;
+}
+
+
+
+
+
+.nav-bar {
+    min-height: 10vh;
+    width: 90%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0px;
+}
+
+.input-bar{
+    
+    align-items: baseline;
+
+}
+
+.left-side{
+    flex:6;
+
+}
+.cover{
+    flex:4;
+    align-items: center;
+    
+}
+
+.list-of-recepies{
+    display: flex;
+    width: 100%;
+    margin: auto;
+    
+    
+}
+
+img{
+    width: 100%;
+    height: auto;
+}
+
+.input-and-cover{
+    display: flex;
+    width: 90%;
+    margin: auto;
+    min-height: 90vh;
+    
+}
+.upper-input-text {
+    font: PopRegular;
+    color: #3B3276;
+    font-weight: bold;
+}
+
+
+.input-bar{
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    position: relative;
+    
+    height: 30px;
+    margin: 15px 0px 20px 0px;
+
+}
+
+.search-bar{
+
+  
+  border: none;
+  border-right: none;
+  padding: 10px;
+  font-family: PopRegular;
+  width: 60%;
+  outline: none;
+  color: #9DBFAF;
+  border-radius:  5px 0 0 5px;
+}
+
+.search-bar:focus{
+    color: black;
+  }
+
+
+.search-button {
+    border: none;
+    background: #F71616;
+    text-align: center;
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    padding: 10px;
+    font-family: PopRegular;  
+  }

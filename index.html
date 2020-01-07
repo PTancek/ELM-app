@@ -6963,30 +6963,22 @@ var $author$project$Page$Detail$view = function (model) {
 			]));
 };
 var $author$project$Page$Home$FetchRecipes = {$: 'FetchRecipes'};
-var $author$project$Page$Home$NextPage = {$: 'NextPage'};
-var $author$project$Page$Home$PrevoiusPage = {$: 'PrevoiusPage'};
 var $author$project$Page$Home$SaveInput = function (a) {
 	return {$: 'SaveInput', a: a};
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
-var $author$project$Page$Home$checkStartIndex = function (m) {
-	var _v0 = m.page;
-	if (!_v0) {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
 		return A2(
 			_VirtualDom_property,
 			key,
-			$elm$json$Json$Encode$bool(bool));
+			$elm$json$Json$Encode$string(string));
 	});
-var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
-var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$Attributes$alt = $elm$html$Html$Attributes$stringProperty('alt');
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $elm$html$Html$img = _VirtualDom_node('img');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7003,6 +6995,12 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$html$Html$Events$on,
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Events$alwaysStop = function (x) {
@@ -7036,23 +7034,16 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Page$Home$viewInput = F4(
-	function (t, p, v, toMsg) {
+var $author$project$Page$Home$viewInput = F5(
+	function (c, t, p, v, toMsg) {
 		return A2(
 			$elm$html$Html$input,
 			_List_fromArray(
 				[
+					$elm$html$Html$Attributes$class(c),
 					$elm$html$Html$Attributes$type_(t),
 					$elm$html$Html$Attributes$placeholder(p),
 					$elm$html$Html$Attributes$value(v),
@@ -7238,54 +7229,105 @@ var $author$project$Page$Home$viewRecipes = function (recipes) {
 var $author$project$Page$Home$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('page')
+			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$h1,
-				_List_Nil,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('CookBook')
-					])),
-				A4($author$project$Page$Home$viewInput, 'text', 'Search for recipes', model.input, $author$project$Page$Home$SaveInput),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Page$Home$FetchRecipes)
+						$elm$html$Html$Attributes$class('nav-bar')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Search')
+						A2(
+						$elm$html$Html$h3,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('logo')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('CookBook')
+							]))
 					])),
-				$author$project$Page$Home$viewRecipes(model.recipes),
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('input-and-cover')
+					]),
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick($author$project$Page$Home$PrevoiusPage),
-								$elm$html$Html$Attributes$disabled(
-								$author$project$Page$Home$checkStartIndex(model))
+								$elm$html$Html$Attributes$class('left-side')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Previous')
+								A2(
+								$elm$html$Html$h2,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('upper-input-text')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Discover most delicious recipes')
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('input-bar')
+									]),
+								_List_fromArray(
+									[
+										A5($author$project$Page$Home$viewInput, 'search-bar', 'text', 'Search for recipes', model.input, $author$project$Page$Home$SaveInput),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$class('search-button'),
+												$elm$html$Html$Events$onClick($author$project$Page$Home$FetchRecipes)
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Search')
+											]))
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('list-of-recepies')
+									]),
+								_List_fromArray(
+									[
+										$author$project$Page$Home$viewRecipes(model.recipes)
+									]))
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick($author$project$Page$Home$NextPage)
+								$elm$html$Html$Attributes$class('cover')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Next')
+								A2(
+								$elm$html$Html$img,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$src('./img/cover.png'),
+										$elm$html$Html$Attributes$alt('solatka')
+									]),
+								_List_Nil)
 							]))
 					]))
 			]));
