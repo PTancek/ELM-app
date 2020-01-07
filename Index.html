@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+  <script src="elm.js"></script>
+</head>
+<body>
+  <main></main>
+  <script>
+
+    var storageKey = "store";
+    var flags = localStorage.getItem(storageKey);
+
+    var app = Elm.Main.init({flags: flags, node: document.querySelector('main') })
+
+    app.ports.storeCache.subscribe(function(val) {
+      
+        if (val === null) {
+          localStorage.removeItem(storageKey);
+        } else {
+          localStorage.setItem(storageKey, JSON.stringify(val));
+        }
+        // Report that the new session was stored successfully.
+        setTimeout(function() { app.ports.onStoreChange.send(val); }, 0);
+      });
+
+      // Whenever localStorage changes in another tab, report it if necessary.
+      window.addEventListener("storage", function(event) {
+        if (event.storageArea === localStorage && event.key === storageKey) {
+          app.ports.onStoreChange.send(event.newValue);
+        }
+      }, false);
+
+  </script>
+</body>
+</html>

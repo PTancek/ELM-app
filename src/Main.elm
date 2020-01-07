@@ -1,12 +1,14 @@
 module Main exposing (main)
 
 import Page.Home as Home
+import Page.Detail as Detail
 import Route exposing (Route)
 import Browser exposing (UrlRequest(..), Document)
 import Browser.Navigation as Nav
 import Url exposing (Url)
 import Html exposing (..)
-
+import RemoteData exposing (WebData)
+import Recipe exposing (..)
 
 -- MAIN TYPES
 
@@ -16,12 +18,20 @@ type alias Model =
     , navKey : Nav.Key
     }
 
+type alias HomeModel =
+    {
+        recipes : WebData (List RecipeLite)
+        , input : String
+    }
+
 type Page
     = NotFoundPage
     | HomePage Home.Model
+    | DetailPage Detail.Model
 
 type Msg
     = HomePageMsg Home.Msg
+    | DetailPageMsg Detail.Msg
     | LinkClicked UrlRequest
     | UrlChanged Url
 
@@ -54,6 +64,13 @@ initCurrentPage ( model, existingCmds ) =
                             Home.init   
                     in
                     ( HomePage pageModel, Cmd.map HomePageMsg pageCmds )
+
+                Route.Detail recipeId ->
+                    let
+                        ( pageModel, pageCmds ) =
+                            Detail.init recipeId model.navKey
+                    in
+                    ( DetailPage pageModel, Cmd.map DetailPageMsg pageCmds )
     in
     ( { model | page = currentPage }
     , Cmd.batch [ existingCmds, mappedPageCmds ]
@@ -78,6 +95,10 @@ currentView model =
             Home.view pageModel
                 |> Html.map HomePageMsg
 
+        DetailPage pageModel ->
+            Detail.view pageModel
+                |> Html.map DetailPageMsg
+
 
 notFoundView : Html msg
 notFoundView =
@@ -96,6 +117,15 @@ update msg model =
             in
             ( { model | page = HomePage updatedPageModel }
             , Cmd.map HomePageMsg updatedCmd
+            )
+
+        ( DetailPageMsg subMsg, DetailPage pageModel ) ->
+            let
+                ( updatedPageModel, updatedCmd ) =
+                    Detail.update subMsg pageModel
+            in
+            ( { model | page = DetailPage updatedPageModel }
+            , Cmd.map DetailPageMsg updatedCmd
             )
         
         ( LinkClicked urlRequest, _ ) ->
