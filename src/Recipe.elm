@@ -12,7 +12,7 @@ type alias Recipe =
         , image : String
         , calories : Float
         , servings : Int
-        , dietLabel : List String
+        , dietLabels : List String
         , healthLabels : List String
         , ingredients : List String
         , nutrients : List NutrientInfo 

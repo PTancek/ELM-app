@@ -8,47 +8,54 @@ import Recipe exposing (..)
 import RemoteData exposing (WebData)
 import Url exposing (percentEncode)
 
-
 type alias Model =
     { 
         recipes : WebData (List RecipeLite)
         , input : String
-        -- , startIndex : Int
-        -- , endIndex : Int
+        , health : String
+        , diet : String
+        , mealType : String
         , page : Int
+        , pageLoaded : Bool
     }
 
 
 type Msg
     = FetchRecipes
-    | SaveInput String
+    | SaveIng String
+    | SaveD String
+    | SaveH String
+    | SaveMT String
     | RecipesRecieved (WebData (List RecipeLite))
     | PrevoiusPage
     | NextPage
 
-type alias Option =
-    {
+-- type alias Option =
+--     {
         
-    }
+--     }
 
 init : ( Model, Cmd Msg )
 init =
-    ( { recipes = RemoteData.NotAsked, input = "", page = 0}, Cmd.none )
+    ( { recipes = RemoteData.NotAsked, input = "", health = "", diet = "", mealType = "", page = 0, pageLoaded = True}, Cmd.none )
 
 
 fetchRecipes : Model -> Cmd Msg
 fetchRecipes model =
     let
 
-        from = 0 + ( 10 * model.page )
-        to = 10 + ( 10 * model.page )
-        searchUrl0 = "https://api.edamam.com/search?q=" ++ model.input ++ "&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78"
-        searchUrl1 = searchUrl0 ++ "&from=" ++ String.fromInt from ++ "&to=" ++ String.fromInt to
+        from = "&from=" ++ String.fromInt (0 + ( 10 * model.page ))
+        to = "&to=" ++ String.fromInt (10 + ( 10 * model.page ))
+        -- diet = "&diet=" ++ model.diet
+        -- health = "&health=" ++ model.health
+        -- mtype = "&mealType=" ++ model.mealType
+
+        searchUrl = "https://api.edamam.com/search?q=" ++ model.input ++ "&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78" ++ from ++ to
 
     in
     
     Http.get
-        { url = searchUrl1
+        { url = searchUrl
         , expect =
             recipesDecoder
                 |> Http.expectJson (RemoteData.fromResult >> RecipesRecieved)
@@ -61,11 +68,20 @@ update msg model =
         FetchRecipes ->
             ( { model | recipes = RemoteData.Loading, page = 0}, fetchRecipes model)
 
-        SaveInput input ->
+        SaveIng input ->
             ( { model | input = input }, Cmd.none)
 
+        SaveD input ->
+            ( { model | diet = input }, Cmd.none)
+
+        SaveH input ->
+            ( { model | health = input }, Cmd.none)
+
+        SaveMT input ->
+            ( { model | mealType = input }, Cmd.none)
+
         RecipesRecieved response ->
-            ( { model | recipes = response }, Cmd.none )
+            ( { model | recipes = response, pageLoaded = False }, Cmd.none )
 
         PrevoiusPage ->
             ( { model | page = model.page - 1
@@ -86,31 +102,42 @@ update msg model =
 view : Model -> Html Msg
 view model =
 
-    div [class "page"]
-        [ div [class "nav-bar"]
-            [
-                h3[ class "logo"][text "CookBook"]
+    div [ 
+           style "height" "100%"
+           , style "font-family" "Arial"
+        ] 
+        [
+            div [
+                style "height" "100%"
+                , style "width" "60%"
+                , style "float" "left"
+                , style "disply" "flex"
+                , style "margin-left" "40px"
+                , style "clear" "left"  
+            ][
+                h3 [ style "font-family" "PopBold", style "font-size" "60px", style "color" "red"] [ text "CookBook" ]
+                , input [ type_ "text", placeholder "Ingredients", value model.input, onInput SaveIng ] []
+                -- , input [ type_ "text", placeholder "Diet", value model.diet, onInput SaveD] []
+                -- , input [ type_ "text", placeholder "Health", value model.health, onInput SaveH ] []
+                -- , input [ type_ "text", placeholder "MealType", value model.mealType, onInput SaveMT ] []
+                , button [ onClick FetchRecipes ][ text "Search" ]
+                , viewRecipes model.recipes
+                , div[ hidden model.pageLoaded] [
+                    button [onClick PrevoiusPage, disabled (checkStartIndex model)] [text "Previous"]
+                    , button [onClick NextPage] [text "Next"]
+                ]
             ]
-        , div [class "input-and-cover"]
-            [
-                div [class "left-side" ]
-                [
-                    h2[ class "upper-input-text"][text "Discover most delicious recipes"]
-                    ,div [class "input-bar"]
-                    [
-                        
-                        viewInput "search-bar" "text" "Search for recipes" model.input SaveInput
-                        , button [class "search-button", onClick FetchRecipes ][ text "Search"  ]
-                    ]
-                    , div [class "list-of-recepies"]
-                    [
-                        viewRecipes model.recipes 
-                    ]
-                ]
-                , div [class "cover"]
-                [
-                    img [src "./img/cover.png", alt "solatka"] []
-                ]
+
+            , div [
+                style "height" "1500px"
+                , style "width" "35%"
+                , style "float" "right"
+                , style "background-color" "red"
+                , style "padding-top" "70px"
+                , style "disply" "flex"
+                , style "position" "relative"
+            ][
+                img [src "../img/cover.png", alt "solatka", style "width" "80%"] []
             ]
         ]
 
@@ -119,17 +146,14 @@ view model =
     --     , viewInput "text" "Search for recipes" model.input SaveInput
     --     , button [ onClick FetchRecipes ][ text "Search" ]
     --     , viewRecipes model.recipes 
-    --     , div[  ] [
-    --         button [onClick PrevoiusPage, disabled (checkStartIndex model)] [text "Previous"]
-    --         , button [onClick NextPage] [text "Next"]
-    --     ]]
+    --     , 
         
 
--- checkStartIndex : Model -> Bool
--- checkStartIndex m = 
---     case m.page of
---         0 -> True
---         _ -> False
+checkStartIndex : Model -> Bool
+checkStartIndex m = 
+    case m.page of
+        0 -> True
+        _ -> False
 
     
 

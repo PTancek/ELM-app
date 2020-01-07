@@ -6181,11 +6181,11 @@ var $author$project$Recipe$Recipe = function (id) {
 			return function (image) {
 				return function (calories) {
 					return function (servings) {
-						return function (dietLabel) {
+						return function (dietLabels) {
 							return function (healthLabels) {
 								return function (ingredients) {
 									return function (nutrients) {
-										return {calories: calories, dietLabel: dietLabel, healthLabels: healthLabels, id: id, image: image, ingredients: ingredients, nutrients: nutrients, servings: servings, title: title, url: url};
+										return {calories: calories, dietLabels: dietLabels, healthLabels: healthLabels, id: id, image: image, ingredients: ingredients, nutrients: nutrients, servings: servings, title: title, url: url};
 									};
 								};
 							};
@@ -6300,7 +6300,7 @@ var $author$project$Page$Detail$init = F2(
 var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Page$Home$init = _Utils_Tuple2(
-	{input: '', page: 0, recipes: $krisajenkins$remotedata$RemoteData$NotAsked},
+	{diet: '', health: '', input: '', mealType: '', page: 0, pageLoaded: true, recipes: $krisajenkins$remotedata$RemoteData$NotAsked},
 	$elm$core$Platform$Cmd$none);
 var $elm$core$Platform$Cmd$map = _Platform_map;
 var $author$project$Main$initCurrentPage = function (_v0) {
@@ -6728,17 +6728,16 @@ var $author$project$Recipe$recipesDecoder = A2(
 	$elm$json$Json$Decode$list(
 		A2($elm$json$Json$Decode$field, 'recipe', $author$project$Recipe$recipeLiteDecoder)));
 var $author$project$Page$Home$fetchRecipes = function (model) {
-	var to = 10 + (10 * model.page);
-	var searchUrl0 = 'https://api.edamam.com/search?q=' + (model.input + '&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78');
-	var from = 0 + (10 * model.page);
-	var searchUrl1 = searchUrl0 + ('&from=' + ($elm$core$String$fromInt(from) + ('&to=' + $elm$core$String$fromInt(to))));
+	var to = '&to=' + $elm$core$String$fromInt(10 + (10 * model.page));
+	var from = '&from=' + $elm$core$String$fromInt(0 + (10 * model.page));
+	var searchUrl = 'https://api.edamam.com/search?q=' + (model.input + ('&app_id=05058adb&app_key=d2fa30e84fc9f8af6b3504f0be84cd78' + (from + to)));
 	return $elm$http$Http$get(
 		{
 			expect: A2(
 				$elm$http$Http$expectJson,
 				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Page$Home$RecipesRecieved),
 				$author$project$Recipe$recipesDecoder),
-			url: searchUrl1
+			url: searchUrl
 		});
 };
 var $author$project$Page$Home$update = F2(
@@ -6750,19 +6749,40 @@ var $author$project$Page$Home$update = F2(
 						model,
 						{page: 0, recipes: $krisajenkins$remotedata$RemoteData$Loading}),
 					$author$project$Page$Home$fetchRecipes(model));
-			case 'SaveInput':
+			case 'SaveIng':
 				var input = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{input: input}),
 					$elm$core$Platform$Cmd$none);
+			case 'SaveD':
+				var input = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{diet: input}),
+					$elm$core$Platform$Cmd$none);
+			case 'SaveH':
+				var input = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{health: input}),
+					$elm$core$Platform$Cmd$none);
+			case 'SaveMT':
+				var input = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{mealType: input}),
+					$elm$core$Platform$Cmd$none);
 			case 'RecipesRecieved':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{recipes: response}),
+						{pageLoaded: false, recipes: response}),
 					$elm$core$Platform$Cmd$none);
 			case 'PrevoiusPage':
 				return _Utils_Tuple2(
@@ -6859,7 +6879,25 @@ var $author$project$Main$notFoundView = A2(
 		[
 			$elm$html$Html$text('Oops! The page you requested was not found!')
 		]));
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$alt = $elm$html$Html$Attributes$stringProperty('alt');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Page$Detail$buildErrorMessage = function (httpError) {
 	switch (httpError.$) {
 		case 'BadUrl':
@@ -6877,6 +6915,254 @@ var $author$project$Page$Detail$buildErrorMessage = function (httpError) {
 			return message;
 	}
 };
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$br = _VirtualDom_node('br');
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var $elm$html$Html$td = _VirtualDom_node('td');
+var $elm$html$Html$tr = _VirtualDom_node('tr');
+var $author$project$Page$Detail$listInfo = function (info) {
+	return A2(
+		$elm$html$Html$tr,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$td,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('- ' + info)
+					]))
+			]));
+};
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Page$Detail$listNutrients = function (nutr) {
+	return A2(
+		$elm$html$Html$tr,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$td,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(nutr.label)
+					])),
+				A2(
+				$elm$html$Html$td,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$elm$core$String$fromInt(
+							$elm$core$Basics$round(nutr.quantity)))
+					])),
+				A2(
+				$elm$html$Html$td,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(nutr.unit)
+					]))
+			]));
+};
+var $elm$html$Html$th = _VirtualDom_node('th');
+var $author$project$Page$Detail$nutrientsHeader = A2(
+	$elm$html$Html$tr,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'font-size', '20px'),
+			A2($elm$html$Html$Attributes$style, 'font-color', 'red')
+		]),
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$th,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'width', '180px')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Nutrient')
+				])),
+			A2(
+			$elm$html$Html$th,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'width', '160px')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Quantity')
+				])),
+			A2(
+			$elm$html$Html$th,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'width', '100px')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Unit')
+				]))
+		]));
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$html$Html$table = _VirtualDom_node('table');
+var $author$project$Page$Detail$detailView = function (r) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'font-size', '25')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h3,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'font-size', '45px'),
+								A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
+								A2($elm$html$Html$Attributes$style, 'font-weight', 'bold')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$href(r.url),
+										A2($elm$html$Html$Attributes$style, 'font-color', 'black')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Recipe: ' + r.title)
+									]))
+							]))
+					])),
+				A2(
+				$elm$html$Html$table,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'text-align', 'left')
+					]),
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$tr,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$th,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'font-size', '30px'),
+											A2($elm$html$Html$Attributes$style, 'font-color', 'red')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Ingredients:')
+										]))
+								]))
+						]),
+					A2($elm$core$List$map, $author$project$Page$Detail$listInfo, r.ingredients))),
+				A2($elm$html$Html$p, _List_Nil, _List_Nil),
+				A2($elm$html$Html$br, _List_Nil, _List_Nil),
+				A2(
+				$elm$html$Html$table,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'text-align', 'left')
+					]),
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$tr,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$th,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'font-size', '30px'),
+											A2($elm$html$Html$Attributes$style, 'font-color', 'red')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Healt Labels:')
+										]))
+								]))
+						]),
+					A2($elm$core$List$map, $author$project$Page$Detail$listInfo, r.healthLabels))),
+				A2($elm$html$Html$br, _List_Nil, _List_Nil),
+				A2(
+				$elm$html$Html$table,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'text-align', 'left')
+					]),
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$tr,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$th,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'font-size', '30px'),
+											A2($elm$html$Html$Attributes$style, 'font-color', 'red')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Diet Labels:')
+										]))
+								]))
+						]),
+					A2($elm$core$List$map, $author$project$Page$Detail$listInfo, r.dietLabels))),
+				A2($elm$html$Html$br, _List_Nil, _List_Nil),
+				A2(
+				$elm$html$Html$h3,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'font-size', '30px'),
+						A2($elm$html$Html$Attributes$style, 'font-color', 'red')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Nutritional values')
+					])),
+				A2(
+				$elm$html$Html$table,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'text-align', 'left')
+					]),
+				_Utils_ap(
+					_List_fromArray(
+						[$author$project$Page$Detail$nutrientsHeader]),
+					A2($elm$core$List$map, $author$project$Page$Detail$listNutrients, r.nutrients)))
+			]));
+};
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -6891,13 +7177,7 @@ var $author$project$Page$Detail$recipeDetailsView = function (recipe) {
 	var head = $elm$core$List$head(recipe);
 	if (head.$ === 'Just') {
 		var x = head.a;
-		return A2(
-			$elm$html$Html$pre,
-			_List_Nil,
-			_List_fromArray(
-				[
-					$elm$html$Html$text(x.title)
-				]));
+		return $author$project$Page$Detail$detailView(x);
 	} else {
 		return A2(
 			$elm$html$Html$pre,
@@ -6949,36 +7229,92 @@ var $author$project$Page$Detail$viewRecipe = function (recipe) {
 var $author$project$Page$Detail$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'height', '100%'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Arial')
+			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$h3,
-				_List_Nil,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('CookBook')
+						A2($elm$html$Html$Attributes$style, 'height', '100%'),
+						A2($elm$html$Html$Attributes$style, 'width', '60%'),
+						A2($elm$html$Html$Attributes$style, 'float', 'left'),
+						A2($elm$html$Html$Attributes$style, 'disply', 'flex'),
+						A2($elm$html$Html$Attributes$style, 'margin-left', '40px'),
+						A2($elm$html$Html$Attributes$style, 'clear', 'left')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h3,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'font-family', 'PopBold'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '60px'),
+								A2($elm$html$Html$Attributes$style, 'color', 'red')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('CookBook')
+							])),
+						$author$project$Page$Detail$viewRecipe(model.recipe)
 					])),
-				$author$project$Page$Detail$viewRecipe(model.recipe)
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'height', '1500px'),
+						A2($elm$html$Html$Attributes$style, 'width', '35%'),
+						A2($elm$html$Html$Attributes$style, 'float', 'right'),
+						A2($elm$html$Html$Attributes$style, 'background-color', 'red'),
+						A2($elm$html$Html$Attributes$style, 'padding-top', '70px'),
+						A2($elm$html$Html$Attributes$style, 'disply', 'flex'),
+						A2($elm$html$Html$Attributes$style, 'position', 'relative')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$img,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$src('../img/cover.png'),
+								$elm$html$Html$Attributes$alt('solatka'),
+								A2($elm$html$Html$Attributes$style, 'width', '80%')
+							]),
+						_List_Nil)
+					]))
 			]));
 };
 var $author$project$Page$Home$FetchRecipes = {$: 'FetchRecipes'};
-var $author$project$Page$Home$SaveInput = function (a) {
-	return {$: 'SaveInput', a: a};
+var $author$project$Page$Home$NextPage = {$: 'NextPage'};
+var $author$project$Page$Home$PrevoiusPage = {$: 'PrevoiusPage'};
+var $author$project$Page$Home$SaveIng = function (a) {
+	return {$: 'SaveIng', a: a};
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Page$Home$checkStartIndex = function (m) {
+	var _v0 = m.page;
+	if (!_v0) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
 		return A2(
 			_VirtualDom_property,
 			key,
-			$elm$json$Json$Encode$string(string));
+			$elm$json$Json$Encode$bool(bool));
 	});
-var $elm$html$Html$Attributes$alt = $elm$html$Html$Attributes$stringProperty('alt');
-var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$h2 = _VirtualDom_node('h2');
-var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $elm$html$Html$Attributes$hidden = $elm$html$Html$Attributes$boolProperty('hidden');
+var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6996,13 +7332,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -7037,20 +7366,6 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Page$Home$viewInput = F5(
-	function (c, t, p, v, toMsg) {
-		return A2(
-			$elm$html$Html$input,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class(c),
-					$elm$html$Html$Attributes$type_(t),
-					$elm$html$Html$Attributes$placeholder(p),
-					$elm$html$Html$Attributes$value(v),
-					$elm$html$Html$Events$onInput(toMsg)
-				]),
-			_List_Nil);
-	});
 var $author$project$Page$Home$buildErrorMessage = function (httpError) {
 	switch (httpError.$) {
 		case 'BadUrl':
@@ -7068,7 +7383,6 @@ var $author$project$Page$Home$buildErrorMessage = function (httpError) {
 			return message;
 	}
 };
-var $elm$html$Html$table = _VirtualDom_node('table');
 var $author$project$Page$Home$viewFetchError = function (errorMessage) {
 	var errorHeading = 'Couldn\'t fetch posts at this time.';
 	return A2(
@@ -7086,17 +7400,7 @@ var $author$project$Page$Home$viewFetchError = function (errorMessage) {
 				$elm$html$Html$text('Error: ' + errorMessage)
 			]));
 };
-var $elm$html$Html$a = _VirtualDom_node('a');
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
 var $elm$url$Url$percentEncode = _Url_percentEncode;
-var $elm$core$Basics$round = _Basics_round;
-var $elm$html$Html$td = _VirtualDom_node('td');
-var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$Page$Home$viewRecipe = function (recipe) {
 	var recipeUrl = $elm$url$Url$percentEncode(recipe.id);
 	return A2(
@@ -7152,7 +7456,6 @@ var $author$project$Page$Home$viewRecipe = function (recipe) {
 					]))
 			]));
 };
-var $elm$html$Html$th = _VirtualDom_node('th');
 var $author$project$Page$Home$viewTableHeader = A2(
 	$elm$html$Html$tr,
 	_List_Nil,
@@ -7231,7 +7534,8 @@ var $author$project$Page$Home$view = function (model) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('page')
+				A2($elm$html$Html$Attributes$style, 'height', '100%'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Arial')
 			]),
 		_List_fromArray(
 			[
@@ -7239,7 +7543,12 @@ var $author$project$Page$Home$view = function (model) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('nav-bar')
+						A2($elm$html$Html$Attributes$style, 'height', '100%'),
+						A2($elm$html$Html$Attributes$style, 'width', '60%'),
+						A2($elm$html$Html$Attributes$style, 'float', 'left'),
+						A2($elm$html$Html$Attributes$style, 'disply', 'flex'),
+						A2($elm$html$Html$Attributes$style, 'margin-left', '40px'),
+						A2($elm$html$Html$Attributes$style, 'clear', 'left')
 					]),
 				_List_fromArray(
 					[
@@ -7247,88 +7556,90 @@ var $author$project$Page$Home$view = function (model) {
 						$elm$html$Html$h3,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('logo')
+								A2($elm$html$Html$Attributes$style, 'font-family', 'PopBold'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '60px'),
+								A2($elm$html$Html$Attributes$style, 'color', 'red')
 							]),
 						_List_fromArray(
 							[
 								$elm$html$Html$text('CookBook')
+							])),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$type_('text'),
+								$elm$html$Html$Attributes$placeholder('Ingredients'),
+								$elm$html$Html$Attributes$value(model.input),
+								$elm$html$Html$Events$onInput($author$project$Page$Home$SaveIng)
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Page$Home$FetchRecipes)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Search')
+							])),
+						$author$project$Page$Home$viewRecipes(model.recipes),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$hidden(model.pageLoaded)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Page$Home$PrevoiusPage),
+										$elm$html$Html$Attributes$disabled(
+										$author$project$Page$Home$checkStartIndex(model))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Previous')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Page$Home$NextPage)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Next')
+									]))
 							]))
 					])),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('input-and-cover')
+						A2($elm$html$Html$Attributes$style, 'height', '1500px'),
+						A2($elm$html$Html$Attributes$style, 'width', '35%'),
+						A2($elm$html$Html$Attributes$style, 'float', 'right'),
+						A2($elm$html$Html$Attributes$style, 'background-color', 'red'),
+						A2($elm$html$Html$Attributes$style, 'padding-top', '70px'),
+						A2($elm$html$Html$Attributes$style, 'disply', 'flex'),
+						A2($elm$html$Html$Attributes$style, 'position', 'relative')
 					]),
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$div,
+						$elm$html$Html$img,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('left-side')
+								$elm$html$Html$Attributes$src('../img/cover.png'),
+								$elm$html$Html$Attributes$alt('solatka'),
+								A2($elm$html$Html$Attributes$style, 'width', '80%')
 							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$h2,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('upper-input-text')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Discover most delicious recipes')
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('input-bar')
-									]),
-								_List_fromArray(
-									[
-										A5($author$project$Page$Home$viewInput, 'search-bar', 'text', 'Search for recipes', model.input, $author$project$Page$Home$SaveInput),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$class('search-button'),
-												$elm$html$Html$Events$onClick($author$project$Page$Home$FetchRecipes)
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Search')
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('list-of-recepies')
-									]),
-								_List_fromArray(
-									[
-										$author$project$Page$Home$viewRecipes(model.recipes)
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('cover')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$img,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$src('./img/cover.png'),
-										$elm$html$Html$Attributes$alt('solatka')
-									]),
-								_List_Nil)
-							]))
+						_List_Nil)
 					]))
 			]));
 };
