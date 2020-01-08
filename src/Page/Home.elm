@@ -7,6 +7,7 @@ import Http
 import Recipe exposing (..)
 import RemoteData exposing (WebData)
 import Url exposing (percentEncode)
+import Style exposing (..)
 
 type alias Model =
     { 
@@ -29,11 +30,6 @@ type Msg
     | RecipesRecieved (WebData (List RecipeLite))
     | PrevoiusPage
     | NextPage
-
--- type alias Option =
---     {
-        
---     }
 
 init : ( Model, Cmd Msg )
 init =
@@ -101,53 +97,36 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-
-    div [ 
-           style "height" "100%"
-           , style "font-family" "Arial"
-        ] 
-        [
-            div [
-                style "height" "100%"
-                , style "width" "60%"
-                , style "float" "left"
-                , style "disply" "flex"
-                , style "margin-left" "40px"
-                , style "clear" "left"  
-            ][
-                h3 [ style "font-family" "PopBold", style "font-size" "60px", style "color" "red"] [ text "CookBook" ]
-                , input [ type_ "text", placeholder "Ingredients", value model.input, onInput SaveIng ] []
-                -- , input [ type_ "text", placeholder "Diet", value model.diet, onInput SaveD] []
-                -- , input [ type_ "text", placeholder "Health", value model.health, onInput SaveH ] []
-                -- , input [ type_ "text", placeholder "MealType", value model.mealType, onInput SaveMT ] []
-                , button [ onClick FetchRecipes ][ text "Search" ]
-                , viewRecipes model.recipes
-                , div[ hidden model.pageLoaded] [
-                    button [onClick PrevoiusPage, disabled (checkStartIndex model)] [text "Previous"]
-                    , button [onClick NextPage] [text "Next"]
+        div ([] ++ page)
+        [ div ([] ++ navBar)
+            [
+                h3([] ++ logostyle) [text "CookBook" ]
+            ]
+        , div ([] ++ inputAndCover)
+            [
+                div ([] ++ leftSide)
+                [
+                    h2([] ++ upperInputText) [text "Discover most delicious recipes"]
+                    ,div ([] ++ inputBar)
+                    [
+                        viewInput searchBar "text" "Search for recipes" model.input SaveIng
+                        , button ([onClick FetchRecipes ] ++ searchButton) [ text "Search"  ]
+                    ]
+                    , div ([] ++ listOfRecepies )
+                    [
+                        viewRecipes model.recipes 
+                    ]
+                    , div [ hidden model.pageLoaded ] [
+                        button [onClick PrevoiusPage, disabled (checkStartIndex model)] [text "Previous"]
+                        , button [onClick NextPage, disabled (shouldEnableNext model)] [text "Next"]
+                    ]
+                ]
+                , div ([] ++ cover)
+                [
+                    img [src "./img/cover.png", alt "solatka"] []
                 ]
             ]
-
-            , div [
-                style "height" "1500px"
-                , style "width" "35%"
-                , style "float" "right"
-                , style "background-color" "red"
-                , style "padding-top" "70px"
-                , style "disply" "flex"
-                , style "position" "relative"
-            ][
-                img [src "../img/cover.png", alt "solatka", style "width" "80%"] []
-            ]
         ]
-
-    -- div []
-    --     [ h1[][text "CookBook"]
-    --     , viewInput "text" "Search for recipes" model.input SaveInput
-    --     , button [ onClick FetchRecipes ][ text "Search" ]
-    --     , viewRecipes model.recipes 
-    --     , 
-        
 
 checkStartIndex : Model -> Bool
 checkStartIndex m = 
@@ -155,18 +134,31 @@ checkStartIndex m =
         0 -> True
         _ -> False
 
+shouldEnableNext : Model -> Bool
+shouldEnableNext m = 
+    if m.pageLoaded == False then 
+        case m.recipes of
+            RemoteData.Success x -> 
+                if List.length x /= 10 then 
+                    True 
+                else 
+                    False
+
+            _ -> True
+    else 
+        True
     
 
-viewInput : String -> String -> String -> String -> (String -> msg) -> Html msg
+viewInput : List (Attribute msg) -> String -> String -> String -> (String -> msg) -> Html msg
 viewInput c t p v toMsg =
-  input [ class c, type_ t, placeholder p, value v, onInput toMsg ] []
+  input ([ type_ t, placeholder p, value v, onInput toMsg ] ++ c) []
 
 
 viewRecipes : WebData (List RecipeLite) -> Html Msg
 viewRecipes recipes =
     case recipes of
         RemoteData.NotAsked ->
-            h3 [][ text "Start Searching for new Recipes!" ]
+            h3 [ style "color" "red"][ text "Start Searching for new Recipes!" ]
 
         RemoteData.Loading ->
             h3 [][ text "Loading..." ]
@@ -175,42 +167,34 @@ viewRecipes recipes =
             div []
                 [ h3 [] [ text "Recipes" ]
                 , table []
-                    ([ viewTableHeader ] ++ List.map viewRecipe actualRecipes)
+                    ([] ++ List.map viewRecipe actualRecipes)
                 ]
 
         RemoteData.Failure httpError ->
             viewFetchError (buildErrorMessage httpError)
 
-viewTableHeader : Html Msg
-viewTableHeader =
-    tr []
-        [ th []
-            [ text "Name"]
-        , th []
-            [ text "calories"]
-        , th []
-            [ text "servings"]
-        ]
-
 
 viewRecipe : RecipeLite -> Html Msg
 viewRecipe recipe =
-
     let
         recipeUrl = Url.percentEncode recipe.id
     in
-    
-    tr []
-        [ td []
-            [ text recipe.title ]
-        , td []
-            [ text (String.fromInt (round recipe.calories)) ]
-        , td []
-            [ text (String.fromInt recipe.servings) ]
-        , td []
-            [ button [ ] [ a [ href ("detail/" ++ recipeUrl) ] [ text "View Recipeit" ] ] ]
-        ]
 
+    div[style "display" "flex", style "position" "relative", style "width" "33%"]
+        [
+        div[style "display" "flex", style "flex" "3",style "width" "50%", style "height" "50%", style "background" ("url(" ++ recipe.image ++ ")") ]
+            [
+                div[style "min-width" "200px", style "min-height" "200px"] [
+                    
+                    div[style "position" "absolute", style "bottom" "20px", style "left" "20 px"]
+                    [
+                        h5 [ style "decoration" "none"] [a [ href ("detail/" ++ recipeUrl)] [text recipe.title]]
+                    ]
+                ]
+                
+            ] 
+        
+        ]
 
 viewFetchError : String -> Html Msg
 viewFetchError errorMessage =
@@ -241,64 +225,4 @@ buildErrorMessage httpError =
 
         Http.BadBody message ->
             message
-
-
--- diet : List String
--- diet = 
---     [ 
---         "balanced"	
---         ,"high-fiber"	
---         ,"high-protein"
---         ,"low-carb"
---         ,"low-fat"
---         ,"low-sodium"	
---         ,"alcohol-free"
---     ]
-
-
--- health : List String
--- health =
---     [
---         "alcohol-free"	
---         ,"celery-free"	
---         ,"crustacean-free" 
---         ,"dairy-free"
---         ,"egg-free"
---         ,"fish-free" 	
---         ,"fodmap-free" 	
---         ,"gluten-free" 	
---         ,"keto-friendly" 	
---         ,"kidney-friendly" 
---         ,"kosher"
---         ,"low-potassium" 	
---         ,"lupine-free" 	
---         ,"mustard-free" 	
---         ,"low-fat-abs" 	
---         ,"No-oil-added" 	
---         ,"low-sugar" 	
---         ,"paleo" 	
---         ,"peanut-free" 	
---         ,"pecatarian" 	
---         ,"pork-free" 	
---         ,"red-meat-free" 
---         ,"sesame-free"
---         ,"shellfish-free"	
---         ,"soy-free"
---         ,"sugar-conscious"
---         ,"tree-nut-free" 
---         ,"vegetarian"
---         ,"wheat-free"
---     ]
-
-
--- mealType : List String 
--- mealType = 
---     [
---         "Breakfast"
---         ,"Lunch"
---         ,"Dinner"
---         ,"Snack"
---     ]
-
-
 

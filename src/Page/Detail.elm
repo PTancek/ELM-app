@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Http exposing (..)
 import RemoteData exposing (WebData)
 import Debug exposing (..)
+import Style exposing (..)
 
 type alias Model =
     { navKey : Nav.Key
@@ -50,35 +51,27 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ 
-           style "height" "100%"
-           , style "font-family" "Arial"
-        ] 
-        [
-            div [
-                style "height" "100%"
-                , style "width" "60%"
-                , style "float" "left"
-                , style "disply" "flex"
-                , style "margin-left" "40px"
-                , style "clear" "left"
-            ][
-                h3 [ style "font-family" "PopBold", style "font-size" "60px", style "color" "red"] [ text "CookBook" ]
-                , viewRecipe model.recipe
+    div ([] ++ page)
+        [ div ([] ++ navBar)
+            [
+                h3([] ++ logostyle) [text "CookBook" ]
             ]
-
-            , div [
-                style "height" "1500px"
-                , style "width" "35%"
-                , style "float" "right"
-                , style "background-color" "red"
-                , style "padding-top" "70px"
-                , style "disply" "flex"
-                , style "position" "relative"
-            ][
-                img [src "../img/cover.png", alt "solatka", style "width" "80%"] []
+        , div ([] ++ inputAndCover)
+            [
+                div ([] ++ leftSide)
+                [
+                    div ([] ++ listOfRecepies )
+                    [
+                        viewRecipe model.recipe
+                    ]
+                ]
+                , div ([] ++ cover)
+                [
+                    img [src "../img/cover.png", alt "solatka"] []
+                ]
             ]
         ]
+
 
 viewRecipe : WebData (List Recipe) -> Html Msg
 viewRecipe recipe =
@@ -105,6 +98,68 @@ recipeDetailsView recipe =
         case head of 
                 Just x -> detailView x
                 Nothing -> pre [] [text "There was a problem loading the Recipe!"]
+
+detailView : Recipe -> Html Msg
+detailView r =
+    div [style "font-size" "25" , style "color" "black"]
+    [
+        div [] [
+            h3 [style "font-size" "45px", style "margin-top" "0"]
+                [ a [ href r.url, style "font-color" "black", style "text-decoration" "none", style "color" "black"] [ text ("Recipe: " ++ r.title)]]
+            , br [] []
+            , h1 [ style "margin-top" "20px"][ text ("Number Of Servings: " ++ String.fromInt r.servings) ]
+            , br [] []
+            , h1 [ style "margin-bottom" "20px"][ text ("Calories: " ++ String.fromInt (round r.calories)) ]
+        ]
+
+        , table [ style "text-align" "left"]
+            ( [ tr [][ th [ style "font-size" "30px", style "color" "red", style "font-family" "PopBold"][ text "Ingredients:"]] 
+            ] ++ List.map listInfo r.ingredients )
+
+        , p [][]
+        , br [] []
+
+        ,table [ style "text-align" "left"]
+            ( [ tr [][ th [ style "font-size" "30px", style "color" "red", style "font-family" "PopBold"][ text "Healt Labels:"]] 
+            ] ++ List.map listInfo r.healthLabels )
+
+        , br [] []
+
+        ,table [ style "text-align" "left"]
+            ( [ tr [][ th [ style "font-size" "30px", style "color" "red", style "font-family" "PopBold"][ text "Diet Labels:"]] 
+            ] ++ List.map listInfo r.dietLabels )
+
+        , br [] []
+
+        , h3 [style "font-size" "30px", style "color" "red"][ text "Nutritional values"]
+        ,table [ style "text-align" "left", style "margin-bottom" "30px"]
+            ( [ nutrientsHeader ] ++ List.map listNutrients r.nutrients )
+    ]
+
+listInfo : String -> Html Msg
+listInfo info =
+    tr [] [
+        td [] [ text ("- " ++ info)]
+    ]
+
+
+nutrientsHeader : Html Msg
+nutrientsHeader =
+    tr [ style "font-size" "20px", style "font-color" "red" ] [
+        th [style "width" "250px"] [ text "Nutrient"]
+        ,th [style "width" "160px"] [ text "Quantity"]
+        ,th [style "width" "100px"] [ text "Unit"]
+    ]
+
+listNutrients : NutrientInfo -> Html Msg
+listNutrients nutr =
+    tr [] [
+        td [] [ text nutr.label]
+        ,td [] [ text (String.fromInt (round nutr.quantity)) ]
+        ,td [] [ text nutr.unit]
+    ]
+
+
 
 
 viewFetchError : String -> Html Msg
@@ -136,61 +191,3 @@ buildErrorMessage httpError =
 
         Http.BadBody message ->
             message
-
-
-detailView : Recipe -> Html Msg
-detailView r =
-    div [style "font-size" "25"]
-    [
-        div [] [
-            h3 [style "font-size" "45px", style "margin-top" "0", style "font-weight" "bold"]
-                [ a [ href r.url, style "font-color" "black"] [ text ("Recipe: " ++ r.title)]]
-            
-        ]
-
-        ,table [ style "text-align" "left"]
-            ( [ tr [][ th [ style "font-size" "30px", style "font-color" "red"][ text "Ingredients:"]] 
-            ] ++ List.map listInfo r.ingredients )
-
-        , p [][]
-        , br [] []
-
-        ,table [ style "text-align" "left"]
-            ( [ tr [][ th [ style "font-size" "30px", style "font-color" "red"][ text "Healt Labels:"]] 
-            ] ++ List.map listInfo r.healthLabels )
-
-        , br [] []
-
-        ,table [ style "text-align" "left"]
-            ( [ tr [][ th [ style "font-size" "30px", style "font-color" "red"][ text "Diet Labels:"]] 
-            ] ++ List.map listInfo r.dietLabels )
-
-        , br [] []
-
-        , h3 [style "font-size" "30px", style "font-color" "red"][ text "Nutritional values"]
-        ,table [ style "text-align" "left"]
-            ( [ nutrientsHeader ] ++ List.map listNutrients r.nutrients )
-    ]
-
-listInfo : String -> Html Msg
-listInfo info =
-    tr [] [
-        td [] [ text ("- " ++ info)]
-    ]
-
-
-nutrientsHeader : Html Msg
-nutrientsHeader =
-    tr [ style "font-size" "20px", style "font-color" "red" ] [
-        th [style "width" "180px"] [ text "Nutrient"]
-        ,th [style "width" "160px"] [ text "Quantity"]
-        ,th [style "width" "100px"] [ text "Unit"]
-    ]
-
-listNutrients : NutrientInfo -> Html Msg
-listNutrients nutr =
-    tr [] [
-        td [] [ text nutr.label]
-        ,td [] [ text (String.fromInt (round nutr.quantity)) ]
-        ,td [] [ text nutr.unit]
-    ]
